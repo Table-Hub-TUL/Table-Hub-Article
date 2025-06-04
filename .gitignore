@@ -1,0 +1,7 @@
+.vscode
+*.aux
+*.log
+*.run.xml
+*.toc
+*.out
+*.bcf
