@@ -1,115 +1,484 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{textcomp}
 \usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{xcolor}
 \usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{pdflscape} % Added for landscape pages
+\usepackage{afterpage}  % Added for \afterpage command
+\usepackage{svg}
+\usepackage{titlesec}
+\usepackage[backend=biber, style=numeric]{biblatex} 
+\addbibresource{bibliography.bib} 
+
+
 \geometry{a4paper, margin=1in}
 
-\usepackage{biblatex}
-\addbibresource{bibliography.bib}
+\setmainfont{Latin Modern Roman}
 
-\usepackage{hyperref} % For linking
-\usepackage{titling} % For custom title page
+\titlespacing*{\section}{0pt}{12pt plus 4pt minus 2pt}{6pt plus 2pt minus 2pt}
+\titlespacing*{\subsection}{0pt}{10pt plus 3pt minus 2pt}{4pt plus 2pt minus 2pt}
 
-\title{Team Project - Final Report 2024, Team 5, Course CS}
-\author{First A. Author$^1$, Second B. Author$^1$, Third C. Author$^1$, Fourth D. Author$^1$, Fifth E. Author$^1$ \\
-$^1$Lodz University of Technology, Poland \\
-Supervisor: A. Boss (e-mail: a.boss@p.lodz.pl)}
-\date{}
+\setlist[itemize]{leftmargin=*, itemsep=2pt, parsep=0pt, topsep=4pt}
+
+\newcommand{\firstauthorname}{Julian Bednarek}
+\newcommand{\secondauthorname}{Hubert Szadkowski}
+\newcommand{\thirdauthorname}{Bartłomiej Sęczkowski}
+\newcommand{\fourthauthorname}{Jakub Raj}
+\newcommand{\fifthauthorname}{Diana Prośniewska}
+\newcommand{\universityname}{Lodz University of Technology, Poland}
+\newcommand{\supervisorname}{Bartosz Sakowicz}
+\newcommand{\supervisoremail}{bartosz.sakowicz@p.lodz.pl}
+\newcommand{\projecttitle}{Table Hub Mobile App for Restaurant Table Management}
+\newcommand{\teamname}{Team 5}
+\newcommand{\coursename}{CS}
+
+\newcommand{\authorbio}[3]{%
+    \par\addvspace{2\baselineskip}%
+    \noindent%
+    \begin{minipage}[t]{0.25\textwidth}
+        \vspace{0pt} % <-- The fix: an invisible line at the very top
+        \includegraphics[width=\linewidth, #1]{#2}
+    \end{minipage}%
+    \hspace{0.05\textwidth}%
+    \begin{minipage}[t]{0.70\textwidth}
+        \vspace{0pt} % <-- The fix: an invisible line at the very top
+        \small
+        #3
+    \end{minipage}
+    \par\addvspace{2\baselineskip}%
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=black,
+    urlcolor=black,
+    citecolor=black,
+}
+
+\usepackage{url}
+\usepackage{ragged2e}
+\raggedbottom 
+
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\setcounter{totalnumber}{5}
+\setcounter{topnumber}{5}
+\setcounter{bottomnumber}{5}
 
 \begin{document}
 
-\begin{titlepage}
-\centering
-\vspace*{\fill}
-{\LARGE Team Project - Final Report 2024 \par}
-\vspace{1cm}
-{\Large Team 5, Course CS \par}
-\vspace{2cm}
-{\LARGE First A. Author$^1$ \\ Second B. Author$^1$ \\ Third C. Author$^1$ \\ Fourth D. Author$^1$ \\ Fifth E. Author$^1$ \par}
-\vspace{0.5cm}
-{\large $^1$Lodz University of Technology, Poland \par}
-\vspace{0.5cm}
-{\large Supervisor: A. Boss (e-mail: a.boss@p.lodz.pl) \par}
-\vspace*{\fill}
-\end{titlepage}
+\title{\projecttitle}
+\author{
+    \firstauthorname\textsuperscript{1}\\
+    \secondauthorname\textsuperscript{1}\\
+    \thirdauthorname\textsuperscript{1}\\
+    \fourthauthorname\textsuperscript{1}\\
+    \fifthauthorname\textsuperscript{1}\\[1ex]
+    \textsuperscript{1}\universityname\\[1ex]
+    Supervisor: \supervisorname{} (e-mail: \supervisoremail)
+}
+\date{June 2025}
+
+\maketitle
 
 \begin{abstract}
-This template provides instructions for your final PBL report. The abstract must be a concise yet comprehensive reflection of what your project is about. In particular, the abstract must be self-contained, without abbreviations, footnotes, or references. It should be a microcosm of the full report, describing the problem, solution, technical summary of the prototype and how it was tested.
-
-\textbf{KEYWORDS} Enter a list of keywords or phrases in alphabetical order, separated by commas.
+This report presents the Table Hub Mobile application, designed to revolutionize restaurant table management. Traditional methods often lead to inefficiencies, inaccurate information, and frustrated customers, particularly due to spontaneous outings and difficulties finding free tables during peak hours. The Table Hub application directly addresses these pain points by providing accurate, real-time table status updates through an intuitive user-friendly interface for both restaurant staff and customers. Key functionalities include an interactive floor plan and real-time WebSocket communication to ensure data consistency across all users. Developed for Android using Kotlin and Jetpack Compose, the application leverages modern development practices such as MVVM architecture and Hilt for dependency injection, ensuring maintainability and scalability. The solution aims to enhance the dining experience, reduce frustration, and streamline restaurant operations.
 \end{abstract}
 
+\noindent\textbf{KEYWORDS:} Android, Kotlin, Jetpack Compose, WebSocket, Table Management, Restaurant, Mobile Application, Hilt
+
 \section{Introduction}
+This document outlines the final report for the Table Hub Mobile application project. The team aims to streamline the process of managing restaurant table availability, providing a user-friendly interface for both restaurant staff and customers to quickly ascertain and update table statuses.
 
 \subsection{Background Information}
-Analytical description of the problem situation presented at the beginning of the project work. Scale of the problem.
+The traditional method of tracking restaurant table availability often relies on manual observation or rudimentary systems, leading to inefficiencies, inaccurate information, and potential loss of revenue due to mismanaged seating. Customers frequently face uncertainty regarding table availability, and staff can be overwhelmed during peak hours trying to coordinate seating. This problem scales with the size and popularity of the restaurant, as well as the complexity of its layout with multiple sections.
 
 \subsection{Problem Finding}
-Describe the path from the starting point stated above, through detailed research on the general problem to the narrowed specific problem description.
+Our detailed user research, including a survey, highlighted several key pain points in restaurant table management. The survey revealed that \textbf{over 74\% of respondents (specifically 78\% combining "often" and "very often" responses) indicated that their outings are spontaneous}, rather than pre-planned. This spontaneity frequently leads to difficulties, as approximately \textbf{74\% of respondents reported problems finding a free table during peak hours}, a situation particularly prevalent on busy days like Fridays and Saturdays. This underscores a significant need for accessible, real-time information to enhance the dining experience and reduce frustration.
+
+\begin{figure}[H]
+   \centering
+    \includegraphics[width=0.5\textwidth]{figures/surveys/outings.png}
+    \caption{Survey: Frequency of Spontaneous Outings}
+    \label{fig:spontaneous_outings_new}
+\end{figure}
+
+The specific problem the authors address is the need for a mobile application that provides accurate, real-time table status updates within a restaurant, allowing for efficient management and clear communication to customers. Existing solutions often lack the dynamic, real-time updates essential for addressing the spontaneity of diners and the challenges of peak hours.
 
 \section{Idea Finding}
 
 \subsection{State of the Art}
-Research on existing knowledge and solutions in relation to the specific problem defined above. This section will contain the most links to scientific articles or websites of commercial solutions. Include the references in square brackets: [1]. For a complete discussion of references and their formats, see the IEEE style manual at www.ieee.org/authortools.
+The restaurant industry in Poland is a dynamic sector, undergoing significant transformations driven by economic shifts, evolving consumer behaviors, and an increasing adoption of technology. Understanding the current landscape of restaurant management and digital solutions within Poland is crucial to positioning the Table Hub Mobile application effectively, by identifying existing gaps and unmet needs in the market.
+
+\subsubsection{Restaurant Industry in Poland}
+The Polish foodservice market has experienced substantial quantitative and qualitative changes since the economic transformation of 1989, progressively resembling Western markets \parencite{kowalczuk2015eating}. While its growth rate has stalled in recent years, robust demand, coupled with the rapid development of tourism and business infrastructure, continues to foster expansion \parencite{kowalczuk2015eating}. The market has been largely privatized, with private entities constituting 98\% of outlets in 2013, fostering greater choice and more efficient management \parencite{kowalczuk2015eating}. Historically, simpler catering forms like bars and food stands predominated, but restaurants have recently seen the most significant growth, though bars and food stands still command the largest market share \parencite{kowalczuk2015eating}. The foodservice business is one of the most vigorous sectors in Poland, with significant revenue growth in recent years \parencite{gheribi2017foodservice}. The overall food service industry in Poland has seen continuous development, with particularly dynamic growth in restaurants. This growth is linked to changes in eating habits and consumer lifestyles, leading to increased demand for convenience and prepared meals \parencite{kowrygo2011development}.
+
+Consumer behavior in Poland indicates that approximately 50\% of Poles utilize catering services, with an average expenditure of 26.2 PLN per month on eating out in 2013 \parencite{kowalczuk2015eating}. However, this expenditure share is considerably lower than the EU average, suggesting a lesser propensity for Poles to dine out frequently \parencite{kowalczuk2015eating}. Spontaneity plays a significant role, with over 74\% of respondents in one survey indicating their outings are spontaneous rather than pre-planned \parencite{kowalczuk2015eating}. This often leads to difficulties, as about 74\% report problems finding a free table during peak hours, particularly on busy days like Fridays and Saturdays \parencite{kowalczuk2015eating}. Key motivations for eating out include taste, reasonable prices, convenience, and time-saving, while financial constraints and the perception of home-cooked meals being healthier are primary barriers \parencite{kowalczuk2015eating}. For tourists in cities like Gdańsk, the taste of meals and appropriate pricing are key incentives for choosing dining options \parencite{pilis2022food}. Individual tourists in Gdańsk tend to favor fast-food, confectioneries, and ice cream parlors over full-service restaurants with waiter service \parencite{pilis2022food}.
+
+Generation Y (also known as millennials), born between 1980 and 1999, is an extremely important and influential demographic in the food market in Poland due to their large numbers, youth, and active, innovative, and demanding nature \parencite{kucharska2019trends}. Their behavior significantly shapes contemporary market trends \parencite{kucharska2019trends}. For Generation Y, IT technologies are considered natural and indispensable for daily life and for enabling product purchases \parencite{kucharska2019trends}. They expect immediate access to offers and rely on mobile applications for organizing their lives, shortening queues, and managing personal data \parencite{kucharska2019trends}. They are eager to visit "fast casual" restaurants that offer high-quality products and fast service \parencite{kucharska2019trends}. Their opinions and photos shared on social media are crucial for the success of catering places \parencite{kucharska2019trends}.
+
+Challenges within the Polish foodservice market include a shortage of financial resources for small and medium-sized enterprises, resulting in lower equipment standards and technological advancement \parencite{kowalczuk2015eating}. There is also a perceived scarcity of highly qualified staff and managerial expertise in organization, management, and marketing \parencite{kowalczuk2015eating}. These factors contribute to the persistence of manual, inefficient systems, particularly concerning table management \parencite{kowalczuk2015eating}.
+
+\subsubsection{Current Restaurant Management and Reservation Systems in Poland}
+The traditional methods of tracking restaurant table availability often rely on manual observation or rudimentary systems, leading to significant inefficiencies, inaccurate information, and potential revenue loss due to mismanaged seating. Customers frequently face uncertainty regarding table availability, and staff can be overwhelmed during peak hours trying to coordinate seating. This problem scales with the size and popularity of the restaurant, as well as the complexity of its layout with multiple sections. Many businesses still use outdated methods like Excel or pen and paper for table reservation and management, which are inefficient, prone to human errors, and restrict operational efficiency, scalability, and sustainability \parencite{skakun2024restaurant}.
+
+While existing solutions for restaurant management commonly include reservation systems or Point of Sale (POS) integrations \parencite{skakun2024restaurant}, a critical limitation is their typical inability to offer a dynamic, real-time visual representation of table occupancy or an intuitive way for staff to update statuses on the fly \parencite{skakun2024restaurant}. Many solutions track bookings but lack the immediate visual feedback and dynamic adaptability crucial for addressing the spontaneity of diners and the challenges of peak hours \parencite{skakun2024restaurant}. This means that even with a system in place, inefficiencies and customer frustration persist \parencite{skakun2024restaurant}.
+
+Notable examples of systems used or relevant in the Polish market where direct external information (e.g., live website links) is accessible for verification include:
+\begin{itemize}
+    \item \textbf{GoPOS:} A Polish system providing sales functionalities, mobile waiter solutions, and online ordering. While offering business control and live reporting, it focuses more on transaction processing and less on dynamic, real-time visual table management for staff and direct customer visibility beyond booking \parencite{gopos}.
+    \item \textbf{SpotOn:} Offers POS solutions and builds apps for restaurant owners, notably utilizing Kotlin and Jetpack components for app development. Its alignment with modern Android development for the restaurant sector is highly relevant to Table Hub's approach \parencite{spoton}.
+    \item \textbf{OpenTable:} A global reservation system active in Poland, it allows customers to book tables online. However, it acts primarily as an intermediary for reservations, and does not provide an interactive, real-time map for general public viewing of instant table availability or for immediate staff updates outside of a formal reservation process \parencite{opentable}.
+    \item \textbf{Zjedz.my:} A Polish mobile application for online table booking. Similar to OpenTable, its main utility is for pre-booking, rather than offering real-time, spontaneous table availability checks via a visual interface for immediate seating \parencite{zjedzmy}.
+\end{itemize}
+
+Research indicates that restaurants adopting reservation policies generally observe higher spending from customers who book in advance compared to walk-ins, suggesting a financial incentive for implementing efficient systems \parencite{gregorash2016restaurant}. However, manual or rudimentary digital systems often fail to fully capitalize on this potential, leading to lost revenue from mismanaged walk-ins and frustrating peak-hour scenarios. The explicit need for accessible, real-time information to enhance the dining experience and reduce frustration is a significant, currently unmet need.
+
+Capacity management is a critical operational concern in hospitality, impacting customer experience, employee satisfaction, and profitability \parencite{pullman2010capacity}. Short-term capacity decisions involve daily efforts to align capacity with demand, often through flexible seating arrangements and effective queue management \parencite{pullman2010capacity}. Optimizing the table mix, by aligning table configurations with anticipated party sizes, can significantly increase seat occupancy and thus serve more customers without necessitating physical expansion \parencite{kim2020small}. The ability to dynamically manage these elements in real-time, which is often lacking in current solutions, directly impacts a restaurant's ability to maximize revenue and customer satisfaction.
+
+\subsubsection{Digital Transformation in Hospitality and Mobile Application Development}
+The hospitality industry is experiencing a profound digital transformation, propelled by advancements in digital technologies (DTs) such as mobile, cloud computing, Internet of Things (IoT), and Artificial Intelligence (AI) \parencite{busulwa2022digital}. This transformation necessitates that hospitality organizations reassess and redesign their operations to achieve greater efficiency, enhance customer experience, improve scalability, and boost strategic agility \parencite{busulwa2022digital}. Correspondingly, hospitality managers require new or enhanced competencies to effectively lead and manage these changes \parencite{busulwa2022digital}. This trend also includes an increasing adoption of process innovations like automation and robotization to boost labor productivity and decrease the need for more workers, especially in response to labor market shortages \parencite{buurman2024investigating}.
+
+Mobile applications are pivotal in this digital shift, offering a direct channel to address real-time needs. Technologies like IoT are taking over human-controlled domains to make processes easier, quicker, and remotely controllable with smart automations \parencite{aytac2018iot}. IoT-based systems for quick service restaurants can efficiently organize staff and tasks, optimizing job assignment and tracking performance to minimize costs and waste \parencite{aytac2018iot}. The core concept of "Remote Queuing," enabled by smartphones, allows users to obtain a queue ticket remotely and use their waiting time without being in near proximity to the service, with real-time updates enhancing customer satisfaction \parencite{karu2013waiting}. Continuous improvement approaches in food service management, often enabled by technology, lead to significant operational and performance improvements (e.g., productivity, efficiency) and increased stakeholder satisfaction (e.g., reductions in waiting times and complaints) \parencite{monteiro2024comprehensive}.
+
+Real-time communication is crucial for instantaneous updates and data consistency across all connected clients. Existing Point of Sale (POS) systems have limitations in real-time information presentation and temporal management of processes, as orders are often recorded by table rather than by dish, making it difficult for staff to grasp sequencing and elapsed time \parencite{shimmura2009real}. New process management systems (PMS) extend conventional POS systems to enable real-time information sharing among staff, displaying orders by dish, elapsed time, and even the status of other kitchen positions to optimize staff assignments \parencite{shimmura2009real}. Implementing such systems has been shown to improve average serving times (from 20 minutes to 16 minutes) and significantly reduce customer complaints (from 15 to 3 per day) \parencite{shimmura2009real}. However, even in hotel reservation systems, 100\% real-time synchronization between online travel agencies (OTAs) and property management systems (PMS) has not yet been fully achieved, especially concerning special guest wishes \parencite{simunic2018level}. For instance, approximately 50\% of hotels still manually process special wishes from OTA portals \parencite{simunic2018level}.
+
+The adoption of modern Android development practices, such as Kotlin and Jetpack Compose for the user interface, facilitates rapid UI development and a high-quality user experience. This approach is seen in various innovative solutions in the restaurant sector \parencite{buurman2024investigating}. The objective of marketing in a restaurant environment is to effectively influence the consumer's purchase decision at the point of sale, where most final purchase decisions are made \parencite{naranen2013pos}.
+
+Key barriers for digital initiatives in the restaurant industry include high financial costs (purchasing, installation, and maintenance) \parencite{buurman2024investigating}. Infrastructural changes such as physical space constraints, the need for scalable solutions for chains, robust network infrastructure for IoT, and adequate electricity supply can also be significant hurdles \parencite{buurman2024investigating}. Resistance to change from both employees and customers can also hinder implementation \parencite{buurman2024investigating}. Additionally, the perception that current robotic technology is not yet mature enough to match human worker speeds during peak hours can be a barrier \parencite{buurman2024investigating}. Conversely, drivers for increased digital engagement in the industry include external shocks like the COVID-19 pandemic and labor shortages, which create a necessity for innovation \parencite{buurman2024investigating}, as well as the potential for increased job satisfaction, productivity gains, and commercial value from using technology as a unique selling point \parencite{buurman2024investigating}. Some technology suppliers also offer alternative acquisition structures, such as free trials or collaborations, to encourage adoption and facilitate real-life testing and feedback loops \parencite{buurman2024investigating}. The overall development trends in the restaurant services market are driven by technological innovations and the development of digital technologies, characterizing digital development and changing consumption habits \parencite{yudina2024trends}.
 
 \subsection{Innovative Ideas}
-Ideas developed by your team, adding new value to better address the stated problem, possibly leading to more effective solutions.
+The team developed the following innovative ideas to address the stated problem, adding new value to better address the stated problem, possibly leading to more effective solutions:
+\begin{itemize}
+    \item \textbf{Interactive Floor Plan:} A visual, interactive layout of the restaurant with clickable tables to quickly change their status.
+    \item \textbf{Real-time WebSocket Communication:} Utilizing WebSockets for instant updates of table statuses across all connected clients, ensuring data consistency.
+    \item \textbf{Location-Based Restaurant Discovery:} Enabling users to find nearby restaurants and view their table availability.
+    \item \textbf{Filter Options:} Allowing users to filter restaurants based on various criteria like cuisine, rating, and minimum available seats.
+    \item \textbf{Intuitive UI with Jetpack Compose:} Building the interface entirely with Jetpack Compose for a modern, reactive, and consistent user experience.
+\end{itemize}
 
 \subsection{Main Idea Selection and Justification}
-Which of the above ideas your team finds the most worth developing and why?
+The team decided to focus on creating a mobile application with an interactive floor plan and real-time WebSocket communication as the core functionalities. The team chose this approach because it directly tackles the real-time accuracy and user experience issues the authors identified. An interactive floor plan provides an immediate visual understanding of the restaurant's state, while WebSockets ensure that this visual representation is always up-to-date for all users. The user research further indicated a strong potential for a user-driven solution, with \textbf{over 74\% of respondents (30.1\% 'Yes' and 44.7\% 'Maybe') expressing willingness to share real-time information about available places, especially when incentivized by discounts, money, or gamification.}
 
-\begin{figure}[h!]
+This was further validated in post-testing interviews, which confirmed that user engagement in reporting table statuses is heavily influenced by incentives. While only **33\%** of users would report statuses without any reward, this figure jumped to **67\%** when gamification or other incentives were introduced. Most respondents indicated they would likely report a table's status once per visit, for instance while waiting for their meal, with some expressing a desire to report more frequently to support the application's ecosystem. The team's use of Jetpack Compose facilitates rapid UI development and a high-quality user interface to support these interactive features.
+
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{example-image-a}
-    \caption{Prepare good resolution of images (at least 300dpi, preferably 600dpi) and max 88mm wide. If the figure comes from external reference, cite it here [2]}
-    \label{fig:example}
+    \includegraphics[width=0.5\textwidth]{figures/surveys/willingness_to_share.png}
+    \caption{Survey: Willingness to Share Real-time Information}
+    \label{fig:willingness_to_share_new}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/surveys/incentives.png}
+    \caption{Survey: Incentives for Sharing Information}
+    \label{fig:sharing_incentives_new}
 \end{figure}
 
 \section{Solution Implementation}
-Summarize your solution before discussing the technical details of the prototyping process.
+The Table Hub Mobile application is an Android application developed in Kotlin, leveraging modern Android development practices, including Jetpack Compose for UI and Hilt for dependency injection. The application communicates with a backend service via WebSockets to manage restaurant and table data in real-time.
 
 \subsection{Technical Details}
-Details of putting the selected idea into life e.g. in form of a material or virtual prototype. Reference figures using phrases such as "...as seen in Fig. \ref{fig:example} and Table \ref{tab:example}"
+The application's architecture follows a MVVM (Model-View-ViewModel) pattern, integrated with a repository pattern for data management and services for business logic and network communication.
 
-\section{Ways of Verification}
-How your team plans to verify (or has already verified) if your solution effectively solves the problem?
+\subsubsection{Core Components}
+\begin{itemize}
+    \item \textbf{Activities:} \texttt{MainActivity} serves as the single activity host for the application's fragments.
 
-\begin{table}[h!]
-    \centering
-    \begin{tabular}{c c}
-         Symbol & Quantity \\
-         \hline
-         $\Phi$ & magnetic flux \\
-         B & magnetic flux density, magnetic induction
-    \end{tabular}
-    \caption{Common Units for Magnetic Properties}
-    \label{tab:example}
-\end{table}
+    \item \textbf{Fragments:}
+    \begin{itemize}[leftmargin=2em]
+        \item \texttt{LogInFragment}: Handles user authentication.
+        \item \texttt{MainViewFragment}: Displays the main map view with restaurants and allows navigation to other features.
+        \item \texttt{ReportViewFragment}: Shows a list of restaurants for reporting purposes.
+        \item \texttt{RestaurantLayoutFragment}: Displays the interactive layout of a selected restaurant's tables.
+        \item \texttt{SettingsFragment}: Provides settings options.
+    \end{itemize}
 
-\section{Conclusions and Perspectives}
-Summarize your work, highlighting strengths and weaknesses of its results. How do you see a potential follow-up of the project?
+    \item \textbf{ViewModels:}
+    \begin{itemize}[leftmargin=2em]
+        \item \texttt{MainViewViewModel}: Manages UI-related data for the main map view, including restaurants and user location, and handles fetching user location.
+        \item \texttt{ReportViewViewModel}: ViewModel for the report view.
+    \end{itemize}
 
-\section*{Appendix}
-Appendixes, if needed, appear before the acknowledgment. This is a good place to place a link to code or data repositories online. Possibly a youtube clip of a demonstration of your prototype solution.
+    \item \textbf{Services:}
+    \begin{itemize}[leftmargin=2em]
+        \item \texttt{TablesService} (interface) and \texttt{TablesServiceImplementation}: Define and implement the core logic for table status updates, interacting with the \texttt{WebSocketService}.
+        \item \texttt{WebSocketService}: Manages WebSocket connections and communication with the backend server for real-time data exchange. It handles connecting, subscribing to updates, and sending table status changes.
+        \item \texttt{MockTableService}: A mock implementation of \texttt{TablesService} for testing and development purposes.
+    \end{itemize}
 
-\section*{Acknowledgment}
-A place to thank the supervisor, experts, organization and/or sponsors that helped with your project.
+    \item \textbf{Repositories:}
+    \begin{itemize}[leftmargin=2em]
+        \item \texttt{IRestaurantsRepository} (interface) and \texttt{RestaurantsRepositoryImpl}: Abstract and implement the data layer for managing restaurant information, including processing initial data and table status changes.
+    \end{itemize}
 
-\section*{References}
-\printbibliography
+    \item \textbf{Models:} Data classes representing core entities like \texttt{Location}, \texttt{Position}, \texttt{Restaurant}, \texttt{Section}, \texttt{Table}, and \texttt{TableStatus}. WebSocket-specific models (e.g., \texttt{WebSocketMessage}, \texttt{MessageType},\\ \texttt{TableUpdateRequest}) are also defined.
 
-\section*{Author Bios and Contributions}
+    \item \textbf{Dependency Injection:} Hilt is used for dependency injection, making the application components easily testable and managing their lifecycle. Modules like \texttt{ClientModule}, \\ \texttt{MessageProcessorModule}, and \texttt{RepositoryModule} provide instances of WebSocket clients, message processors, and repositories.
 
-
-\begin{itemize}[label={}, leftmargin=0pt, itemsep=0pt, parsep=0pt]
-    \item \textbf{FIRST A. AUTHOR} - (Add bio here)
-    \item \textbf{SECOND B. AUTHOR} - (Add bio here)
-    \item \textbf{THIRD C. AUTHOR} - (Add bio here)
-    \item \textbf{FOURTH D. AUTHOR} - (Add bio here)
-    \item \textbf{FIFTH E. AUTHOR} - (Add bio here)
+    \item \textbf{UI (Jetpack Compose):} The user interface is built declaratively using Jetpack Compose. Examples include \texttt{MainLoginView}, \texttt{MainMapView}, \texttt{RestaurantLayoutMainView}, and various reusable composables for buttons, text fields, and pop-ups.
 \end{itemize}
 
+\subsubsection{Key Features and Implementations}
+\begin{itemize}
+    \item \textbf{Location Services:} The \texttt{MainViewViewModel} requests and fetches the user's last known location using \texttt{LocationServices.getFusedLocationProviderClient}. Necessary permissions (\texttt{ACCESS\_FINE\_LOCATION}, \texttt{ACCESS\_COARSE\_LOCATION}) are declared in \texttt{AndroidManifest.xml} and handled at runtime.
+
+    \item \textbf{Map Integration:} The \texttt{MapboxMapWrapper} composable integrates Mapbox for displaying restaurants on a map. Custom markers are created to show the number of available tables.
+
+    \item \textbf{Real-time Communication:} The \texttt{WebSocketService} establishes and manages a STOMP (Simple Text Oriented Messaging Protocol) WebSocket connection. It subscribes to \texttt{/topic/restaurant/status} for initial status and \texttt{/user/queue/updateTableStatus} for table updates, and sends updates to \texttt{/app/updateTableStatus}. The \texttt{WSMessageRelay} acts as a central hub for WebSocket messages.
+
+    \item \textbf{Data Processing:} The \texttt{WebsocketMessageProcessorImpl} observes the \texttt{WSMessageRelay} and processes incoming WebSocket messages based on their \texttt{MessageType} (e.g., \texttt{QUERY\_RESTAURANTS\_RESPONSE}, \texttt{SUBSCRIBE\_RESTAURANT\_UPDATES\_RESPONSE}, \texttt{TABLE\_STATUS\_CHANGED\_EVENT}), updating the \\ \texttt{RestaurantsRepositoryImpl} accordingly.
+
+    \item \textbf{Table Status Update:} Within \texttt{RestaurantLayoutFragment}, users can select a section and then tap on individual tables to change their status (\texttt{AVAILABLE}, \texttt{OCCUPIED}, \texttt{UNKNOWN}) via an \texttt{AlertDialog}. These updates are then sent to the backend through the \texttt{TablesServiceImplementation}.
+
+    \item \textbf{User Interface Styling:} The app defines its color scheme in \texttt{colors.xml} and \texttt{Color.kt}, and themes in \texttt{themes.xml} and \texttt{Theme.kt}, providing a consistent visual identity. String resources for localization are available in \texttt{strings.xml} and \texttt{strings-pl.xml}.
+\end{itemize}
+
+\subsubsection{UML Diagrams}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/uml/service_uml.png}
+    \caption{Service and Repository Interaction Diagram}
+    \label{fig:service_uml}
+\end{figure}
+
+Figure \ref{fig:service_uml} illustrates the comprehensive architecture of the application's service and repository layer. This diagram depicts the core components responsible for data management and real-time communication. The WebSocket communication stack begins with the \texttt{OkHttpWebsocketClient}, which establishes and maintains the connection with the backend server. This client works in conjunction with the \texttt{WebSocketService}, which handles higher-level operations like subscription management and message formatting according to the STOMP protocol.
+
+The diagram further shows how messages flow through the system via the \texttt{WSMessageRelay}, acting as a central hub for all WebSocket communications. The \texttt{WSMessageProcessor} consumes these messages, interpreting different message types and transforming raw data into application-specific models. These processed messages are then forwarded to the \texttt{RestaurantRepository}, which serves as the single source of truth for restaurant and table data within the application.
+
+The \texttt{MainViewViewModel} accesses this repository data to present an up-to-date view of restaurants and their table availability to users. Meanwhile, the \texttt{TablesService} provides a clean interface for the UI components to initiate status changes, which are then propagated back through the WebSocket communication chain to synchronize with the backend and other connected clients. This architecture ensures real-time data consistency while maintaining a clear separation of concerns between the user interface, business logic, and data management components.
+
+Figure \ref{fig:ui_uml} on the following page illustrates the high-level architecture of the user interface layer. The application is built around a single-activity architecture, where \texttt{MainActivity} serves as the primary host. It contains a \texttt{NavHost} component, which is responsible for managing the navigation between various \texttt{Fragments}. Each fragment represents a distinct screen or feature within the application, such as \texttt{LoginFragment}, \texttt{MainViewFragment}, and \texttt{RestaurantLayoutFragment}.
+
+The UI state and business logic are handled by ViewModels, exemplified by \texttt{MainViewModel}. This ViewModel acts as an intermediary, providing UI-related data to the fragments while abstracting the data sources. The \texttt{MainViewModel} interacts with backend services through components like \texttt{RetrofitClient} for network requests and manages local, sensitive user data using \texttt{EncryptedDataStore}. This structure adheres to modern Android architecture principles, ensuring a clear separation of concerns between the UI, state management, and data layers.
+
+% This command places the landscape figure on the page following the text above.
+\afterpage{
+    \begin{landscape}
+        \begin{figure}[p!] % '[p!]' suggests placing this on its own page
+            \centering
+            % Use \linewidth to fill the width of the new landscape page
+            \includegraphics[width=\linewidth,keepaspectratio]{figures/uml/ui_uml.png}
+            \caption{UI Component Diagram}
+            \label{fig:ui_uml}
+        \end{figure}
+    \end{landscape}
+}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/uml/nav_graph.png}
+    \caption{Navigation Graph Diagram}
+    \label{fig:nav_graph}
+\end{figure}
+
+Figure \ref{fig:nav_graph} visually represents the user flow and possible transitions between the application's different screens. The navigation graph is centered around the \texttt{MainViewFragment}, which acts as the primary hub after a user successfully logs in or signs up via the \texttt{LoginFragment} and \texttt{SignupFragment}, respectively. From the main view, the user can navigate to several key features: the \texttt{RestaurantLayoutFragment} to view a specific restaurant's interactive floor plan, the \texttt{ReportViewFragment} to search for restaurants, and the \texttt{SettingsFragment} to configure application settings. This graph outlines the logical structure of the user journey, ensuring a cohesive and predictable navigation experience.
+
+
+\section{Ways of Verification}
+The solution's effectiveness was primarily verified through User Acceptance Testing (UAT) conducted with a focus group. The application can also be subjected to further A/B testing in the future.
+
+\subsection{User Feedback and Survey Results}
+To validate the application concept and gather initial feedback, a survey and testing session was conducted with a group of 9 individuals after they interacted with the application. The group included a mix of age demographics (3 participants were over 25). The key findings are summarized below:
+
+\begin{itemize}
+    \item \textbf{Adoption Potential:} When asked if they would install the application, \textbf{66\%} of participants responded with a definitive "Yes." An additional \textbf{22\%} would install it if they were in a location with a high density of restaurants (such as a city center), while 12\% would not. This indicates a strong potential user base among those who dine out spontaneously.
+
+    \item \textbf{Application Rating:} The application's concept and execution received an average rating of \textbf{7.6 out of 10} from users under 25. The rating from users over 25 was lower, at \textbf{5.3 out of 10}, with most in this group stating they do not go out often enough to need such an application. Overall feedback described it as "a very cool application for people who often go out spontaneously."
+
+    \item \textbf{Perceived Usefulness:} Approximately \textbf{70\%} of respondents felt the application would genuinely help them find a table, but noted that its usefulness is directly proportional to the accuracy and real-time nature of the data. Assuming a critical mass of users providing updates, the consensus was that the app is a helpful tool that streamlines, rather than complicates, the process of finding a table.
+
+    \item \textbf{Usage Frequency:} When asked about how often they would use the app, \textbf{45\%} stated they would use it every time they went out to the city. Another 22\% estimated they would use it every other day, while 13\% said their use would depend on the data's perceived accuracy at the time.
+\end{itemize}
+
+\section{Conclusions and Perspectives}
+The Table Hub Mobile application offers a robust and intuitive solution for real-time restaurant table management. Its modular architecture, leveraging Kotlin, Jetpack Compose, and Hilt, promotes maintainability and scalability. The integration of WebSockets ensures that table status updates are instant and synchronized across all users.
+
+\subsection{Strengths}
+\begin{itemize}
+    \item Real-time data synchronization.
+    \item User-friendly and interactive UI for table management.
+    \item Clear separation of concerns through MVVM and Repository patterns.
+    \item Leverages modern Android development tools.
+\end{itemize}
+
+\subsection{Weaknesses}
+\begin{itemize}
+    \item \textbf{Fixed WebSocket URL:} The application currently relies on a hardcoded WebSocket server URL. This limits flexibility and would need to be made configurable for broader deployment.
+
+    \item \textbf{Basic WebSocket Error Handling:} Error handling for WebSocket communication could be improved. Implementing retry mechanisms or more robust user notifications for connection issues would enhance reliability.
+    
+    \item \textbf{Non-intuitive UI Elements:} Initial user feedback indicated that some design choices, such as representing tables as simple squares with numbers for seats, were not immediately intuitive without an explanation or tutorial.
+    
+    \item \textbf{Undeveloped Features:} As a minimum viable product, some UI elements such as certain buttons are not yet functional.
+\end{itemize}
+
+\subsection{Potential Follow-up}
+\begin{itemize}
+    \item \textbf{Backend Integration:} Develop the full backend service to complement the mobile application, ensuring secure and scalable data storage.
+
+    \item \textbf{User Authentication and Profiles:} Implement a complete user authentication system with different roles (e.g., staff, customer) and personalized profiles.
+    
+    \item \textbf{Dynamic and Scalable Layouts:} The current static table layout should be re-engineered to be dynamic, ensuring it scales correctly on all device sizes and can handle a larger, more complex number of tables without the UI becoming chaotic.
+
+    \item \textbf{In-App Restaurant Menus:} Adding restaurant menus was a popular suggestion. This feature could transform the app into a comprehensive restaurant discovery tool and further incentivize user reporting, as all respondents stated this would make them more likely to install the app.
+
+    \item \textbf{Notifications:} Implement push notifications for significant events. A key user suggestion was to allow users to "watch" a fully-booked restaurant and receive a notification the moment a table becomes available.
+
+    \item \textbf{Data Freshness Indicators:} To build user trust in the data's accuracy, a flag indicating the time of the last table status update for a given restaurant could be displayed.
+
+    \item \textbf{Location Verification:} To prevent misuse and ensure data integrity, the application could verify if a user reporting a table's status is in close proximity to the restaurant.
+
+    \item \textbf{Onboarding and Tutorials:} To improve the initial user experience, a guided tour or tutorial is necessary to explain the interface, particularly the interactive table layout.
+\end{itemize}
+
+\appendix
+\section*{Appendix}
+
+\subsection*{App Views}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/loginview.jpg}
+        \caption{Login Screen}
+        \label{fig:login_screen}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/signupview.jpg}
+        \caption{Sign Up Screen}
+        \label{fig:signup_screen}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/mainview.jpg}
+        \caption{Map View with Restaurants}
+        \label{fig:map_view}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/details.jpg}
+        \caption{Restaurant Information Pop-up}
+        \label{fig:restaurant_info}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/reportview.jpg}
+        \caption{Restaurant Search and List View}
+        \label{fig:restaurant_search}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/restaurantlayout.jpg}
+        \caption{Interactive Table Layout View}
+        \label{fig:tables_view}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/report.jpg}
+        \caption{Change Table States Dialog}
+        \label{fig:report_tables_dialog}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/menu.jpg}
+        \caption{Menu Screen}
+        \label{fig:menu_screen}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appviews/filter.jpg}
+        \caption{Filter Options for Restaurants}
+        \label{fig:filter_options}
+    \end{minipage}
+\end{figure}
+
+\subsection*{Code Repository}
+\url{https://github.com/Table-Hub-TUL}
+
+\section*{Acknowledgment}
+The authors would like to express their sincere gratitude to
+\begin{itemize}
+    \item the supervisor, \supervisorname{}, for his invaluable guidance and support throughout this project. His expertise and encouragement were instrumental in bringing Table Hub Mobile to fruition.
+    \item Wojciech Walczak for sharing a server with the team to test the application.
+\end{itemize}
+
+\printbibliography 
+\section*{Author bios and contributions}
+
+\authorbio{}{figures/mordy/ja.jpg}{
+    \textbf{\firstauthorname} was born in Lodz in 2004 and since 2023 is a student of International Faculty of Engineering at the Technical University of Lodz, specializing in Computer Science. He is passionate about software development, particularly in mobile applications and machine learning.
+
+    In this project, he contributed significantly to the development of the Table Hub Mobile application, focusing on the implementation of the mobile app. His expertise in Kotlin and modern Android development practices was crucial in building a user-friendly interface and ensuring real-time communication through WebSockets. He also played a key role in designing the application's architecture, including the MVVM pattern and repository structure, which enhanced maintainability and scalability.
+
+    In addition he also contributed by being main project manager, coordinating the team's efforts, and ensuring that the project met its objectives and deadlines. His leadership skills were essential in guiding the team through the development process, facilitating effective communication, and resolving any challenges that arose.
+}
+
+\authorbio{}{figures/mordy/bercik.jpg}{
+    \textbf{\secondauthorname} was born in was born in 2005 in Lodz and since 2023 is a student of International Faculty of Engineering at the Technical University of Lodz, specializing in Computer Science. He is passionate about software development, enterprise level Java applications and cloud solutions and Artificial Intelligence.
+
+    In this project, he contributed significantly to the development of the Table Hub Mobile application, focusing on the implementation of the backend service. His expertise in Java and Spring Boot was crucial in building a robust and scalable backend that supports real-time communication with the mobile app. He also played a key role in designing the application's architecture, including the RESTful API and database interactions, which enhanced data management and processing.
+
+    In addition he was responsible for Dockerizing the backend service, ensuring that it could be easily deployed and scaled in various environments. His knowledge of containerization and cloud deployment strategies was essential in making the backend service reliable and efficient.
+}
+
+\authorbio{}{figures/mordy/czosnek.jpg}{
+    \textbf{\thirdauthorname} was born in in 2005 in Lodz and since 2023 is a student of International Faculty of Engineering at the Technical University of Lodz, specializing in Computer Science. He is passionate about computer graphics, game development, and mobile applications.
+
+    In this project, he contributed significantly to the development of the Table Hub Mobile application, focusing on the implementation of the user interface using his talent in design and user experience. He also learned and applied modern Android development practices, particularly Jetpack Compose, to create a visually appealing and intuitive user interface. His work included designing the interactive floor plan and ensuring that the application was user-friendly and responsive and under mentoring of \firstauthorname{} he developed new transferable skills in Kotlin and Android development.
+
+    In addtion he helped \fourthauthorname{} in alpha testing of the application, providing valuable feedback on usability and functionality. His attention to detail and user-centric approach were instrumental in refining the application's design and ensuring a positive user experience.
+}
+
+\authorbio{}{figures/mordy/raju.jpg}{
+    \textbf{\fourthauthorname} was born in 2004 in Lodz and since 2023 is a student of International Faculty of Engineering at the Technical University of Lodz, specializing in Computer Science. He is passionate about embedded systems and IoT. He is a fan of test-driven development and agile methodologies.
+
+    In this project, he was main person responsible for quality assurance and testing of the Table Hub Mobile application. He implemented a comprehensive testing strategy, including unit tests, integration tests, and user acceptance testing, to ensure the application's reliability and performance. His expertise in test-driven development (TDD) and agile methodologies was crucial in maintaining high code quality and facilitating continuous integration. 
+
+    He also contributed to the development of backend service, particularly in the areas of WebSocket communication and real-time data processing. His understanding of server-client interactions and experience with Java and Spring Boot were essential in building a robust backend that supports the mobile application.
+}
+
+\authorbio{}{figures/mordy/diana.jpeg}{
+    \textbf{\fifthauthorname} was born in 2004 in Lodz and since 2023 is a student of International Faculty of Engineering at the Technical University of Lodz, specializing in Computer Science. She is passionate about data science, Problem-Based Learning (PBL), and user experience design and in free time she is playing in academic orchestra.
+
+    In this project, she contributed significantly to the user research and design aspects of the Table Hub Mobile application. Her expertise in user experience (UX) design was crucial in understanding user needs and translating them into intuitive application features. She conducted user interviews and surveys to gather feedback, which informed the design decisions and feature prioritization.
+
+    Additionally, she was resposible for database desing and choosing proper tech stack for the backend service, ensuring that the data management was efficient and aligned with the application's requirements. Her knowledge of database design principles and experience with relational databases were essential in structuring the data effectively.
+
+    She is also a main person responsible for writing this article, ensuring that the technical details were accurately documented and presented in a clear and concise manner. Her writing skills were instrumental in communicating the project's objectives, implementation details, and outcomes effectively.
+}
 \end{document}
